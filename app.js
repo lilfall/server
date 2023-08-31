@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.send("Hello guys! add github");
+  res.send("Hello guys berhasil diuptae!");
 });
 
 app.use((err, req, res, next) => {
