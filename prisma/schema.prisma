@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  product_id   Int     @id @default(autoincrement())
+  product_name String  @db.VarChar(255)
+  slug         String? @unique
+  description  String? @db.VarChar(255)
+  price        Float   @db.Float
+  stock        Int     @db.Int
+  extra_data   Json?   @db.Json
+  category     String? @db.VarChar(255) // Kategori produk
+  weight       Float?  @db.Float // Berat produk dalam kg
+  dimensions   String? @db.VarChar(255) // Dimensi produk
+
+  // ... tambahkan field tambahan sesuai kebutuhan
+
+  store_id String
+  Store    Store  @relation(fields: [store_id], references: [store_id])
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  images             Image[]
+  rating             Float?    @db.Float
+  reviews            Review[]
+  minStock           Int?      @db.Int
+  promoPrice         Float?    @db.Float
+  discountPercentage Int?      @db.Int
+  expireDate         DateTime?
+  location           String?   @db.VarChar(255)
+}
+
+model Image {
+  image_id    Int      @id @default(autoincrement())
+  url         String   @db.VarChar(255)
+  description String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  product_id  Int
+  Product     Product  @relation(fields: [product_id], references: [product_id])
+}
+
+model Review {
+  review_id  Int      @id @default(autoincrement())
+  content    String   @db.Text
+  rating     Float    @db.Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user_id    String
+  product_id Int
+  User       User     @relation(fields: [user_id], references: [id])
+  Product    Product  @relation(fields: [product_id], references: [product_id])
+}
+
+model User {
+  id                     String        @id @default(uuid())
+  username               String?       @unique @db.VarChar(255)
+  email                  String        @unique @db.VarChar(255)
+  password               String?       @db.VarChar(255)
+  name                   String?       @db.VarChar(255)
+  address                String?       @db.VarChar(255)
+  phoneNumber            String?       @db.VarChar(255)
+  additionalData         Json?         @db.Json
+  dateOfBirth            DateTime?
+  gender                 Gender?
+  profileImage           String?
+  isVerified             Boolean       @default(false)
+  facebook               String?
+  twitter                String?
+  instagram              String?
+  linkedin               String?
+  occupation             String?
+  education              String?
+  interests              String?
+  receiveEmails          Boolean       @default(true)
+  receiveSMS             Boolean       @default(true)
+  isAdmin                Boolean       @default(false)
+  isSuperAdmin           Boolean       @default(false)
+  verificationCode       String?
+  resetToken             String?
+  resetTokenExpiry       DateTime?
+  defaultShippingAddress String?
+  defaultBillingAddress  String?
+  defaultPaymentMethod   String?
+  referralCode           String?
+  transactions           Transaction[]
+  subscription           Subscription?
+  store                  Store[]
+  reviews                Review[]
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+}
+
+model Store {
+  store_id       String    @id @default(uuid())
+  store_name     String    @db.VarChar(255)
+  store_setting  Json?     @db.Json
+  store_location Json?     @db.Json
+  products       Product[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user_id        String
+  User           User      @relation(fields: [user_id], references: [id])
+}
+
+model Transaction {
+  transaction_id   Int      @id @default(autoincrement())
+  transaction_code String   @unique
+  amount           Float    @db.Float
+  status           String   @db.VarChar(255)
+  paymentMethod    String?  @db.VarChar(255)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user_id          String
+  User             User     @relation(fields: [user_id], references: [id])
+}
+
+model Plan {
+  plan_id      Int           @id @default(autoincrement())
+  plan_name    String        @db.VarChar(255)
+  description  String?       @db.VarChar(255)
+  price        Float         @db.Float
+  duration     String        @db.VarChar(255)
+  subscription Subscription?
+
+  // ... tambahkan kolom tambahan lainnya sesuai kebutuhan
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  subscription_id Int       @id @default(autoincrement())
+  start_date      DateTime  @default(now())
+  end_date        DateTime?
+  status          String    @db.VarChar(255)
+
+  // ... tambahkan kolom tambahan lainnya sesuai kebutuhan
+
+  user_id String @unique
+  plan_id Int    @unique
+  User    User   @relation(fields: [user_id], references: [id])
+  Plan    Plan   @relation(fields: [plan_id], references: [plan_id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Gender {
+  Male
+  Female
+}
