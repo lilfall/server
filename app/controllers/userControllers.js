@@ -7,6 +7,6 @@ exports.getUsers = (req, res) => {
       res.status(200).json({ message: "berhasil", data: users });
     })
     .catch((error) => {
-      throw error;
+      res.status(500).json({ message: "Error", data: error });
     });
 };
